@@ -1,0 +1,306 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+html {
+    scroll-behavior: smooth;
+}
+body {
+        background-color: #313131; 
+        font-family: 'Inter', sans-serif;
+}
+        
+#main_img{
+    width: 150;
+    height: 60;
+}
+#github{
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 25px;
+}
+#link{
+    position: absolute;
+    bottom: 35px;
+    left: 10px;
+    width: 25px;
+}
+
+
+/* 왼쪽 내비게이션 영역 스타일 */
+.sidebar {
+    background-color: #222222;    
+    width: 150px; /* 원하는 너비 설정 */
+    padding: 20px 20px 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+
+    position: fixed; 
+    height: 100%;
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar .btn {
+    width: 100%; /* 부모 요소(사이드바)의 너비를 100% 채우도록 설정 */
+    
+    /* 텍스트가 중앙이 아닌 왼쪽에서 시작하도록 정렬 */
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.sidebar.collapsed {
+    width: 60px; /* 접혔을 때의 너비 (아이콘만 보일 정도) */
+    padding: 20px 0; /* 너비가 줄어들었으므로 좌우 패딩을 줄이거나 제거 */
+}
+.sidebar.collapsed .btn {
+    /* 너비를 고정하거나 내부 콘텐츠에 맞춥니다. */
+    width: 40px; 
+    text-align: center;
+    visibility: hidden;
+}
+.sidebar.collapsed p{
+    visibility: hidden;
+}
+#stair{
+    background-image: url("이미지/계단.png");
+    background-repeat: no-repeat;
+    background-position: left center; /* 왼쪽 중앙에 위치 */
+    padding-left: 30px; /* 아이콘 공간 확보를 위해 왼쪽 패딩 추가 */
+    background-size: 20px 20px; /* 아이콘 크기 설정 */
+    height: 30px;
+    line-height: 30px;
+}
+#dot{
+    background-image: url("이미지/점.png");
+    background-repeat: no-repeat;
+    background-position: left center; /* 왼쪽 중앙에 위치 */
+    padding-left: 30px; /* 아이콘 공간 확보를 위해 왼쪽 패딩 추가 */
+    background-size: 23px 23px; /* 아이콘 크기 설정 */
+    height: 46px;
+    line-height: 46px;
+}
+/*
+#beginner-btn{
+    background-image: url("이미지/1.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 30px; 
+    background-size: 30px 30px;
+    height: 46px;
+    line-height: 46px;
+}
+#intermediate-btn{
+    background-image: url("이미지/2.png");
+    background-repeat: no-repeat;
+    background-position: left center; 
+    padding-left: 30px; 
+    background-size: 30px 30px;
+    height: 46px;
+    line-height: 46px;
+}
+#advanced-btn{
+    background-image: url("이미지/3.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 30px;
+    background-size: 30px 30px;
+    height: 46px;
+    line-height: 46px;
+} 
+*/
+
+#mySidebar{
+    padding: 0
+}
+
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+.container-wrapper {
+    display: flex; /* 자식 요소들을 가로로 나란히 배치 */
+}
+
+
+
+
+.sidebar .btn {
+    border-radius: 0 !important; /* 모서리를 0으로 강제 설정 */
+}
+.toggle-btn {
+    position: absolute;
+    bottom: 20px; /* 사이드바 아래에서 20px 위 */
+    right: 0; 
+    transform: translateX(50%); /* 버튼을 오른쪽 모서리에 반쯤 걸치도록 이동 */
+    background: #222222;
+    border: 1px solid #444;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    z-index: 100;
+}
+.main-image {
+    margin: auto;
+    /* 이미지 크기 설정 (예시) */
+    width: 600px; /* 원하는 크기로 조정 */
+    height: auto;
+    max-width: 90vw; /* 화면 크기에 반응하도록 최대 폭 제한 */
+    /* 선택 사항: 이미지 아래쪽 여백 추가 */
+    margin-bottom: 30px; 
+}
+#start{
+    padding-left: 80px;
+    padding-right: 80px;
+}
+
+.main-content #getstart{
+    color:white
+}
+.main-content #plus{
+    text-decoration: none;
+    color:#a1a1a1;
+    margin-bottom: 170px;
+}
+#stair_ex{
+    color: rgb(170, 170, 170);
+    margin-bottom: 50px;
+}
+
+
+
+    </style>
+</html>
+<body>
+
+<div class="container-wrapper">
+    <nav class="sidebar" id="mySidebar">
+        <a href="chess_main.html">
+            <img id="main_img" src="이미지/체스_배우기아이콘 .png" alt="메인 페이지로 이동">
+        </a>
+        <nav class="learning-steps">
+            <div class="text-light">
+            <p id="stair">단계 배우기</p>
+            </div>
+            
+                <button class="btn btn-dark **ms-0**" id="beginner-btn">초급</button>
+                <button class="btn btn-dark **ms-0**"  id="intermediate-btn">중급</button>
+                <button class="btn btn-dark **ms-0**" id="advanced-btn">고급</button>
+            
+        </nav>
+    
+        <nav class="detailed-sections">
+            <div class="text-light">
+            <p id="dot">세부 학습 주제</p>
+            </div>
+           
+                <button class="btn btn-dark **ms-0**" id="glossary-btn">용어 해설</button>
+                <button class="btn btn-dark **ms-0**" id="master-btn">유명 경기</button>
+                <button class="btn btn-dark **ms-0**" id="puzzles-btn">문제 풀기</button>
+                <button class="btn btn-dark **ms-0**" id="news-btn">오프닝  </button>
+            
+        </nav>
+        <button class="toggle-btn" id="toggleButton">
+            <span>◀</span> </button>
+            <a href="https://github.com/yeonwoo09seo-alt/ChessLearningWepPage/tree/main" target="_blank">
+                <img id="github" src="이미지/깃허브.png" alt="깃허브 주소">
+            </a>
+            <a href="product_detail.html" target="_blank">
+                <img id="link" src="product.jpg" alt="상품 이미지">
+            </a>
+    </nav>
+    
+    <div class="main-content" id="mainContent">
+    <main class="main-content">
+        <div class="d-flex **justify-content-center**">
+            <img src="이미지/체스 배경.png" alt="메인 배경 이미지" class="main-image img-fluid **d-block mx-auto**">
+        </div>
+        <div class="d-flex justify-content-center">
+            <h2 id="getstart">체스를 배우고 실력을 키워보세요<h2>
+        </div>
+        <div class="d-flex justify-content-center">
+            <a href="difficulty.html">
+            <button id="start" class="btn btn-success btn-lg">실습해보기!</button>
+            </a>
+        </div>
+        <div class="d-flex justify-content-center">
+            <a id="plus"href="#target-section"> ▼더 보기▼</a>
+        </div>
+        <div class="d-flex **justify-content-center**"id="target-section">
+            <img src="이미지/큰 계단.png" alt="메인 설명 이미지" class="main-image img-fluid **d-block mx-auto**">
+        </div>
+        <div class="d-flex justify-content-center">
+            <p id="stair_ex">체스 학습을 초급, 중급, 고급으로 나누어 학습 효율성을 높입니다.<br>
+                초급에서는 규칙과 기초 전술을 익혀 견고한 기본기를 다지고,<br> 중급에서는 오프닝 전략, 복합 전술, 엔드게임 기초를 배워 사고의 폭을 넓힙니다.<br> 고급에서는 깊이 있는 포지션 전략과 엔드게임 이론을 마스터하여 지속 가능한 성장을 이룹니다.</p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <h3></h3>
+        </div>
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    </main>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="main.js"></script>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a href="https://www.flaticon.com/kr/free-icons/" title="골 아이콘">골 아이콘 제작자: Freepik - Flaticon</a>
+
+<html>
