@@ -79,14 +79,29 @@
         .controls { margin-top: 20px; }
         
         /* 선택된 말과 이동 가능한 칸 하이라이트 */
-        .square-55d63.highlight-selected {
-            box-shadow: inset 0 0 3px 3px yellow;
+        .highlight-selected {
+            box-shadow: inset 0 0 3px 3px yellow !important;
         }
-        .square-55d63.highlight-move {
-            background: radial-gradient(circle, rgba(0, 255, 0, 0.5) 20%, transparent 20%) !important;
+        .highlight-move {
+            position: relative;
         }
-        .square-55d63.highlight-capture {
-            box-shadow: inset 0 0 0 3px rgba(255, 0, 0, 0.7);
+        .highlight-move::after {
+            content: '';
+            position: absolute;
+            width: 25%;
+            height: 25%;
+            background: rgba(0, 255, 0, 0.6);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .highlight-capture {
+            box-shadow: inset 0 0 0 3px rgba(255, 0, 0, 0.7) !important;
+        }
+        
+        #myBoard .square-55d63 {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -153,7 +168,6 @@
     const game = new Chess(); 
     let board = null;
     let selectedSquare = null;
-    let possibleMoves = [];
 
     // 하이라이트 제거
     function removeHighlights() {
@@ -163,7 +177,6 @@
     // 이동 가능한 칸 하이라이트
     function highlightMoves(square) {
         const moves = game.moves({ square: square, verbose: true });
-        possibleMoves = moves.map(move => move.to);
         
         // 선택된 말 하이라이트
         $('#myBoard .square-' + square).addClass('highlight-selected');
@@ -179,8 +192,8 @@
         });
     }
 
-    // 칸 클릭 이벤트
-    function onSquareClick(square) {
+    // 칸 클릭 처리
+    function handleSquareClick(square) {
         // 게임이 끝났으면 클릭 무시
         if (game.game_over()) return;
 
@@ -204,7 +217,6 @@
             if (square === selectedSquare) {
                 removeHighlights();
                 selectedSquare = null;
-                possibleMoves = [];
                 return;
             }
             
@@ -229,13 +241,11 @@
                 // 잘못된 이동
                 removeHighlights();
                 selectedSquare = null;
-                possibleMoves = [];
             } else {
                 // 정상 이동
                 board.position(game.fen());
                 removeHighlights();
                 selectedSquare = null;
-                possibleMoves = [];
                 updateStatus();
             }
         }
@@ -263,12 +273,21 @@
     function initBoard() {
         const config = {
             draggable: false,
-            position: 'start',
-            onSquareClick: onSquareClick
+            position: 'start'
         };
         
         board = Chessboard('myBoard', config);
         updateStatus();
+        
+        // 보드가 렌더링된 후 클릭 이벤트 바인딩
+        setTimeout(() => {
+            $('#myBoard .square-55d63').on('click', function(e) {
+                const square = $(this).attr('data-square');
+                if (square) {
+                    handleSquareClick(square);
+                }
+            });
+        }, 100);
     }
 
     $(document).ready(function() {
@@ -279,12 +298,20 @@
             board.start();
             removeHighlights();
             selectedSquare = null;
-            possibleMoves = [];
             updateStatus();
         });
 
         document.getElementById('flipBoard').addEventListener('click', () => {
             board.flip();
+            // 보드를 뒤집은 후 클릭 이벤트 다시 바인딩
+            setTimeout(() => {
+                $('#myBoard .square-55d63').off('click').on('click', function(e) {
+                    const square = $(this).attr('data-square');
+                    if (square) {
+                        handleSquareClick(square);
+                    }
+                });
+            }, 100);
         });
         
         $(window).on('resize', board.resize);
