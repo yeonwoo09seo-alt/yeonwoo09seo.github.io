@@ -31,18 +31,18 @@
     #stair{
         background-image: url("이미지/계단.png");
         background-repeat: no-repeat;
-        background-position: left center; /* 왼쪽 중앙에 위치 */
-        padding-left: 30px; /* 아이콘 공간 확보를 위해 왼쪽 패딩 추가 */
-        background-size: 20px 20px; /* 아이콘 크기 설정 */
+        background-position: left center;
+        padding-left: 30px;
+        background-size: 20px 20px;
         height: 30px;
         line-height: 30px;
     }
     #dot{
         background-image: url("이미지/점.png");
         background-repeat: no-repeat;
-        background-position: left center; /* 왼쪽 중앙에 위치 */
-        padding-left: 30px; /* 아이콘 공간 확보를 위해 왼쪽 패딩 추가 */
-        background-size: 23px 23px; /* 아이콘 크기 설정 */
+        background-position: left center;
+        padding-left: 30px;
+        background-size: 23px 23px;
         height: 46px;
         line-height: 46px;
     }
@@ -77,6 +77,17 @@
             width: 500px; max-width: 90vw; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
         .controls { margin-top: 20px; }
+        
+        /* 선택된 말과 이동 가능한 칸 하이라이트 */
+        .square-55d63.highlight-selected {
+            box-shadow: inset 0 0 3px 3px yellow;
+        }
+        .square-55d63.highlight-move {
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.5) 20%, transparent 20%) !important;
+        }
+        .square-55d63.highlight-capture {
+            box-shadow: inset 0 0 0 3px rgba(255, 0, 0, 0.7);
+        }
     </style>
 </head>
 <body>
@@ -91,9 +102,9 @@
             <p id="stair">단계 배우기</p>
             </div>
             
-                <button class="btn btn-dark **ms-0**" id="beginner-btn">초급</button>
-                <button class="btn btn-dark **ms-0**"  id="intermediate-btn">중급</button>
-                <button class="btn btn-dark **ms-0**" id="advanced-btn">고급</button>
+                <button class="btn btn-dark ms-0" id="beginner-btn">초급</button>
+                <button class="btn btn-dark ms-0"  id="intermediate-btn">중급</button>
+                <button class="btn btn-dark ms-0" id="advanced-btn">고급</button>
             
         </nav>
     
@@ -102,10 +113,10 @@
             <p id="dot">세부 학습 주제</p>
             </div>
            
-                <button class="btn btn-dark **ms-0**" id="glossary-btn">용어 해설</button>
-                <button class="btn btn-dark **ms-0**" id="master-btn">유명 경기</button>
-                <button class="btn btn-dark **ms-0**" id="puzzles-btn">문제 풀기</button>
-                <button class="btn btn-dark **ms-0**" id="news-btn">오프닝  </button>
+                <button class="btn btn-dark ms-0" id="glossary-btn">용어 해설</button>
+                <button class="btn btn-dark ms-0" id="master-btn">유명 경기</button>
+                <button class="btn btn-dark ms-0" id="puzzles-btn">문제 풀기</button>
+                <button class="btn btn-dark ms-0" id="news-btn">오프닝  </button>
             
         </nav>
         <button class="toggle-btn" id="toggleButton">
@@ -120,9 +131,9 @@
     
     <main class="main-content" id="mainContent">
         <div class="board-container">
-            <h2 class="text-light text-center mb-3">♟️ 자유롭게 말을 움직여 보세요 ♘</h2>
+            <h2 class="text-light text-center mb-3">♟️ 말을 클릭하여 움직여 보세요 ♘</h2>
             <p class="text-muted text-center mb-4">
-                말을 드래그하여 원하는 칸에 놓으세요. **체스 규칙**에 맞는 움직임만 허용됩니다.
+                먼저 이동할 말을 클릭하고, 다음으로 목적지 칸을 클릭하세요. <strong>체스 규칙</strong>에 맞는 움직임만 허용됩니다.
             </p>
 
             <div id="myBoard"></div>
@@ -137,53 +148,111 @@
         </div>
     </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // chess.js 0.10.3 버전과 호환되는 코드
     const game = new Chess(); 
     let board = null;
+    let selectedSquare = null;
+    let possibleMoves = [];
 
-    function onDragStart (source, piece, position, orientation) {
-        // game_over() 메서드 사용
-        if (game.game_over() || 
-            (piece.search(/^b/) !== -1 && game.turn() === 'w') ||
-            (piece.search(/^w/) !== -1 && game.turn() === 'b')) {
-            return false;
+    // 하이라이트 제거
+    function removeHighlights() {
+        $('#myBoard .square-55d63').removeClass('highlight-selected highlight-move highlight-capture');
+    }
+
+    // 이동 가능한 칸 하이라이트
+    function highlightMoves(square) {
+        const moves = game.moves({ square: square, verbose: true });
+        possibleMoves = moves.map(move => move.to);
+        
+        // 선택된 말 하이라이트
+        $('#myBoard .square-' + square).addClass('highlight-selected');
+        
+        // 이동 가능한 칸 하이라이트
+        moves.forEach(move => {
+            const squareEl = $('#myBoard .square-' + move.to);
+            if (move.captured) {
+                squareEl.addClass('highlight-capture');
+            } else {
+                squareEl.addClass('highlight-move');
+            }
+        });
+    }
+
+    // 칸 클릭 이벤트
+    function onSquareClick(square) {
+        // 게임이 끝났으면 클릭 무시
+        if (game.game_over()) return;
+
+        const piece = game.get(square);
+        
+        // 첫 번째 클릭: 말 선택
+        if (selectedSquare === null) {
+            // 빈 칸이거나 상대 말이면 무시
+            if (!piece) return;
+            if ((piece.color === 'w' && game.turn() === 'b') || 
+                (piece.color === 'b' && game.turn() === 'w')) {
+                return;
+            }
+            
+            selectedSquare = square;
+            highlightMoves(square);
+        } 
+        // 두 번째 클릭: 목적지 선택
+        else {
+            // 같은 칸을 다시 클릭하면 선택 해제
+            if (square === selectedSquare) {
+                removeHighlights();
+                selectedSquare = null;
+                possibleMoves = [];
+                return;
+            }
+            
+            // 자기 편 말을 클릭하면 다른 말로 선택 변경
+            if (piece && 
+                ((piece.color === 'w' && game.turn() === 'w') || 
+                 (piece.color === 'b' && game.turn() === 'b'))) {
+                removeHighlights();
+                selectedSquare = square;
+                highlightMoves(square);
+                return;
+            }
+            
+            // 이동 시도
+            const move = game.move({
+                from: selectedSquare,
+                to: square,
+                promotion: 'q'
+            });
+            
+            if (move === null) {
+                // 잘못된 이동
+                removeHighlights();
+                selectedSquare = null;
+                possibleMoves = [];
+            } else {
+                // 정상 이동
+                board.position(game.fen());
+                removeHighlights();
+                selectedSquare = null;
+                possibleMoves = [];
+                updateStatus();
+            }
         }
     }
 
-    function onDrop (source, target) {
-        const move = game.move({
-            from: source,
-            to: target,
-            promotion: 'q'
-        });
-
-        if (move === null) return 'snapback';
-        
-        updateStatus();
-    }
-
-    function onSnapEnd () {
-        board.position(game.fen());
-    }
-
-    function updateStatus () {
+    function updateStatus() {
         let status = '';
         let moveColor = game.turn() === 'w' ? 'White' : 'Black';
 
-        // in_checkmate() 메서드 사용
         if (game.in_checkmate()) {
             status = '게임 종료. ' + moveColor + ' 체크메이트!';
         } 
-        // in_draw() 메서드 사용
         else if (game.in_draw()) {
             status = '게임 종료. 무승부입니다.';
         } 
         else {
             status = moveColor + '의 차례입니다.';
-            // in_check() 메서드 사용
             if (game.in_check()) {
                 status += ' (체크 상태)';
             }
@@ -193,11 +262,9 @@
 
     function initBoard() {
         const config = {
-            draggable: true,
+            draggable: false,
             position: 'start',
-            onDragStart: onDragStart,
-            onDrop: onDrop,
-            onSnapEnd: onSnapEnd
+            onSquareClick: onSquareClick
         };
         
         board = Chessboard('myBoard', config);
@@ -210,6 +277,9 @@
         document.getElementById('resetPosition').addEventListener('click', () => {
             game.reset();
             board.start();
+            removeHighlights();
+            selectedSquare = null;
+            possibleMoves = [];
             updateStatus();
         });
 
